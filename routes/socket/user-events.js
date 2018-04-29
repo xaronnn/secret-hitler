@@ -1285,10 +1285,9 @@ module.exports.handleUpdatedTopDeck = (passport, game, data) => {
 
 	const performTopDeck = () => {
 		game.publicPlayersState[game.gameState.presidentIndex].isLoader = false;
-		game.private.seatedPlayers[game.gameState.presidentIndex].playersState
-			.forEach(player => {
-				player.notificationStatus = '';
-			});
+		game.private.seatedPlayers[game.gameState.presidentIndex].playersState.forEach(player => {
+			player.notificationStatus = '';
+		});
 		while (game.trackState.electionTrackerCount < 2) {
 			game.trackState.electionTrackerCount++;
 			game.gameState.presidentIndex = nextPresidentIndex(game.gameState.presidentIndex);
