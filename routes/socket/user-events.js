@@ -1271,23 +1271,29 @@ module.exports.handleUpdatedRemakeGame = (passport, game, data) => {
  * @param {object} data - from socket emit.
  */
 module.exports.handleUpdatedTopDeck = (passport, game, data) => {
-	if (!game || !game.publicPlayersState || game.general.isRemade) {
+	if (!game || !game.publicPlayersState || game.general.isRemade || game.publicPlayersState[0].isFlipped) {
 		return;
 	}
 
 	const { publicPlayersState } = game;
 	const playerIndex = publicPlayersState.findIndex(player => player.userName === passport.user);
 	const player = publicPlayersState[playerIndex];
-	
+
 	if (!player) return;
 
 	player.isTopDeckVoting = data.topDeckStatus;
-	
+
 	const performTopDeck = () => {
+		game.publicPlayersState[game.gameState.presidentIndex].isLoader = false;
+		game.private.seatedPlayers[game.gameState.presidentIndex].playersState
+			.forEach(player => {
+				player.notificationStatus = '';
+			});
 		while (game.trackState.electionTrackerCount < 2) {
 			game.trackState.electionTrackerCount++;
 			game.gameState.presidentIndex = nextPresidentIndex(game.gameState.presidentIndex);
 		}
+		game.trackState.electionTrackerCount++;
 		game.gameState.previousElectedGovernment = [];
 		if (!game.gameState.undrawnPolicyCount) {
 			shufflePolicies(game);
@@ -1304,12 +1310,12 @@ module.exports.handleUpdatedTopDeck = (passport, game, data) => {
 			return nextIndex;
 		}
 	};
-	
+
 	const numPlayers = publicPlayersState.length;
 
 	if (data.topDeckStatus) {
 		const topDeckPlayerCount = publicPlayersState.filter(player => player.isTopDeckVoting).length;
-		
+
 		if (topDeckPlayerCount == numPlayers && !game.general.isTopDecking) {
 			game.general.isTopDecking = true;
 
@@ -1327,9 +1333,8 @@ module.exports.handleUpdatedTopDeck = (passport, game, data) => {
 			game.general.topDeckCounter = 5;
 			game.private.topDeckTimer = setInterval(() => {
 				if (game.general.topDeckCounter !== 0) {
-					if (game.general.topDeckCounter < 6) game.general.status = `Top-decking one card in ${game.general.topDeckCounter} ${
-						game.general.topDeckCounter === 1 ? 'second' : 'seconds'
-					}.`;
+					if (game.general.topDeckCounter < 6)
+						game.general.status = `Top-decking one card in ${game.general.topDeckCounter} ${game.general.topDeckCounter === 1 ? 'second' : 'seconds'}.`;
 					game.general.topDeckCounter--;
 					if (game.trackState.liberalPolicyCount === 5 || game.trackState.fascistPolicyCount === 6) clearInterval(game.private.topDeckTimer);
 				} else {
@@ -1339,8 +1344,7 @@ module.exports.handleUpdatedTopDeck = (passport, game, data) => {
 				sendInProgressGameUpdate(game);
 			}, 1000);
 		}
-	}
-	else {
+	} else {
 		if (game.general.isTopDecking) {
 			game.general.isTopDecking = false;
 
