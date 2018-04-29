@@ -16,6 +16,7 @@ const {
 	handlePlayerReportDismiss,
 	handleUpdatedBio,
 	handleUpdatedRemakeGame,
+	handleUpdatedTopDeck,
 	handleUpdatedPlayerNote
 } = require('./user-events');
 const {
@@ -173,6 +174,12 @@ module.exports = () => {
 				const game = findGame(data);
 				if (authenticated && ensureInGame(passport, game)) {
 					handleUpdatedRemakeGame(passport, game, data);
+				}
+			})
+			.on('updateTopDeck', data => {
+				const game = findGame(data);
+				if (authenticated && ensureInGame(passport, game)) {
+					handleUpdatedTopDeck(passport, game, data);
 				}
 			})
 			.on('updateBio', data => {

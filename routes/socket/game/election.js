@@ -240,6 +240,8 @@ const enactPolicy = (game, team) => {
 	}, process.env.NODE_ENV === 'development' ? 100 : experiencedMode ? 1000 : 4000);
 };
 
+module.exports.enactPolicy = enactPolicy;
+
 /**
  * @param {object} passport - socket authentication.
  * @param {object} game - target game.
