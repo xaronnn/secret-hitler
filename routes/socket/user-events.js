@@ -1271,7 +1271,7 @@ module.exports.handleUpdatedRemakeGame = (passport, game, data) => {
  * @param {object} data - from socket emit.
  */
 module.exports.handleUpdatedTopDeck = (passport, game, data) => {
-	if (!game || !game.publicPlayersState || game.general.isRemade || game.publicPlayersState[0].isFlipped) {
+	if (!game || !game.publicPlayersState || game.general.isRemade || game.publicPlayersState[0].cardStatus.isFlipped) {
 		return;
 	}
 
